@@ -157,8 +157,9 @@ if __name__ == '__main__':
     log_monitor = Msg_Receiver(ctx,'tcp://127.0.0.1:%s'%ipc_sub_port,topics=('logging.',))
     notification_monitor = Msg_Receiver(ctx,'tcp://127.0.0.1:%s'%ipc_sub_port,topics=('notify.',))
     monitor = Msg_Receiver(ctx,'tcp://127.0.0.1:%s'%ipc_sub_port,topics=('pingback_test.3',))
-    # gaze_monitor = Msg_Receiver(ctx,'tcp://localhost:%s'%ipc_sub_port,topics=('gaze.',))
-
+    gaze_monitor = Msg_Receiver(ctx,'tcp://localhost:%s'%ipc_sub_port,topics=('gaze.',))
+    pupil_monitor = Msg_Receiver(ctx,'tcp://localhost:%s'%ipc_sub_port,topics=('pupil.',))
+    
     #you can also publish to the IPC Backbone directly.
     publisher = Msg_Streamer(ctx,'tcp://127.0.0.1:%s'%ipc_pub_port)
     sleep(1)
@@ -190,6 +191,14 @@ if __name__ == '__main__':
         topic,msg = monitor.recv()
         print topic,msg['format']
 
+    gaze_monitor.subscribe('gaze.')
+    while True:
+        topic,msg = gaze_monitor.recv()
+        print topic,msg
+        
+    while True:
+        topic,msg = pupil_monitor.recv()
+        print topic,msg    
     # # now lets get the current pupil time.
     # requester.send('t')
     # print requester.recv()
