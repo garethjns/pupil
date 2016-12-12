@@ -65,14 +65,23 @@ class Msg_Receiver(object):
     def unsubscribe(self,topic):
         self.socket.set_string(zmq.UNSUBSCRIBE, topic)
 
-    def recv(self):
+    def recv(self, opt=1):
         '''Recv a message with topic, payload.
 
         Any addional message frames will be added as a list
         in the payload dict with key: '__raw_data__' .
         '''
-        topic = self.socket.recv()
-        payload = serializer.loads(self.socket.recv())
+        
+
+            
+        if opt==1:
+            topic = self.socket.recv()
+            payload = serializer.loads(self.socket.recv())
+        else:
+            topic = self.socket.recv(flags=zmq.NOBLOCK)
+            sleep(0.1)
+            payload = serializer.loads(self.socket.recv(flags=zmq.NOBLOCK))
+                
         extra_frames = []
         while self.socket.get(zmq.RCVMORE):
             extra_frames.append(self.socket.recv())
@@ -198,7 +207,16 @@ if __name__ == '__main__':
     monitor.subscribe('frame.')
     while True:
         topic,msg = monitor.recv()
-        print( topic,msg['format'])
+        print(topic)
+
+    gaze_monitor.subscribe('gaze.')
+    while True:
+        topic,msg = gaze_monitor.recv(1)
+        print(topic)
+        
+    while True:
+        topic,msg = pupil_monitor.recv()
+        print(topic)
 
     # # now lets get the current pupil time.
     requester.send_string('t')
